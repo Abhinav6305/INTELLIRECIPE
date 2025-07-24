@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IntelliRecipe</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Roboto', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* Animation Page Styles */
+    .animation-page {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: linear-gradient(135deg, #00a86b 0%, #00c878 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+    }
+
+    .soup-container {
+      position: relative;
+      width: 600px;
+      height: 500px;
+    }
+
+    .stove {
+      position: absolute;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 200px;
+      height: 80px;
+      background: linear-gradient(to bottom, #333 0%, #111 100%);
+      border-radius: 10px;
+      border: 3px solid #000;
+      opacity: 0;
+      animation: showStove 1s ease-in 0.5s forwards;
+    }
+
+    .burner {
+      position: absolute;
+      top: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 120px;
+      border: 4px solid #222;
+      border-radius: 50%;
+      background: radial-gradient(circle, #444 30%, #222 70%);
+    }
+
+    .burner::before {
+      content: '';
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      right: 10px;
+      bottom: 10px;
+      border: 2px solid #333;
+      border-radius: 50%;
+    }
+
+    .burner::after {
+      content: '';
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      right: 20px;
+      bottom: 20px;
+      border: 2px solid #333;
+      border-radius: 50%;
+    }
+
+    .cooking-bowl {
+      position: absolute;
+      bottom: 150px;
+      left: -200px;
+      width: 140px;
+      height: 70px;
+      background: linear-gradient(to bottom, #2C2C2C 0%, #1A1A1A 100%);
+      border-radius: 0 0 70px 70px;
+      border: 3px solid #000;
+      animation: bowlSlideIn 2s ease-out 1.5s forwards, panShake 0.5s ease-in-out 6s infinite;
+    }
+
+    .cooking-bowl::before {
+      content: '';
+      position: absolute;
+      top: -8px;
+      left: -12px;
+      width: 25px;
+      height: 15px;
+      background: #2C2C2C;
+      border: 3px solid #000;
+      border-radius: 12px;
+    }
+
+    .cooking-bowl::after {
+      content: '';
+      position: absolute;
+      top: -8px;
+      right: -12px;
+      width: 25px;
+      height: 15px;
+      background: #2C2C2C;
+      border: 3px solid #000;
+      border-radius: 12px;
+    }
+
+    .flames {
+      position: absolute;
+      bottom: 120px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 40px;
+      opacity: 0;
+      animation: igniteFlames 0.5s ease-in 3.5s forwards;
+    }
+
+    .flame {
+      position: absolute;
+      bottom: 0;
+      width: 8px;
+      height: 25px;
+      background: linear-gradient(to top, #ff4500 0%, #ff6500 50%, #ffaa00 100%);
+      border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+      animation: flicker 0.3s infinite alternate;
+    }
+
+    .flame:nth-child(1) { left: 10%; animation-delay: 0s; }
+    .flame:nth-child(2) { left: 25%; animation-delay: 0.1s; }
+    .flame:nth-child(3) { left: 40%; animation-delay: 0.2s; }
+    .flame:nth-child(4) { left: 55%; animation-delay: 0.3s; }
+    .flame:nth-child(5) { left: 70%; animation-delay: 0.1s; }
+    .flame:nth-child(6) { left: 85%; animation-delay: 0.2s; }
+
+    .ingredient {
+      position: absolute;
+      font-size: 2rem;
+      opacity: 0;
+      animation: dropIngredient 1s ease-in forwards;
+    }
+
+    .ingredient-tomato {
+      top: -50px;
+      left: 50%;
+      transform: translateX(-50%);
+      animation-delay: 4s;
+    }
+
+    .ingredient-onion {
+      top: -50px;
+      left: 50%;
+      transform: translateX(-50%);
+      animation-delay: 4.5s;
+    }
+
+    .ingredient-carrot {
+      top: -50px;
+      left: 50%;
+      transform: translateX(-50%);
+      animation-delay: 5s;
+    }
+
+    .ingredient-garlic {
+      top: -50px;
+      left: 50%;
+      transform: translateX(-50%);
+      animation-delay: 5.5s;
+    }
+
+    .soup {
+      position: absolute;
+      bottom: 158px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 20px;
+      background: linear-gradient(to right, #FF6B35 0%, #F7931E 100%);
+      border-radius: 0 0 60px 60px;
+      opacity: 0;
+      animation: cookSoup 2s ease-in-out 6s forwards;
+    }
+
+    .steam {
+      position: absolute;
+      bottom: 150px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      animation: steamRise 3s ease-out 3s forwards;
+    }
+
+    .steam-particle {
+      position: absolute;
+      width: 15px;
+      height: 30px;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+      animation: floatUp 3s infinite ease-in-out;
+      filter: blur(1px);
+    }
+
+    .steam-particle:nth-child(1) { left: 42%; animation-delay: 0s; width: 12px; }
+    .steam-particle:nth-child(2) { left: 48%; animation-delay: 0.2s; width: 18px; }
+    .steam-particle:nth-child(3) { left: 52%; animation-delay: 0.4s; width: 15px; }
+    .steam-particle:nth-child(4) { left: 58%; animation-delay: 0.6s; width: 20px; }
+    .steam-particle:nth-child(5) { left: 45%; animation-delay: 0.8s; width: 14px; }
+    .steam-particle:nth-child(6) { left: 55%; animation-delay: 1.0s; width: 16px; }
+    .steam-particle:nth-child(7) { left: 50%; animation-delay: 1.2s; width: 22px; }
+    .steam-particle:nth-child(8) { left: 46%; animation-delay: 1.4s; width: 13px; }
+    .steam-particle:nth-child(9) { left: 54%; animation-delay: 1.6s; width: 17px; }
+    .steam-particle:nth-child(10) { left: 49%; animation-delay: 1.8s; width: 19px; }
+
+    .screen-fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,255,255,1) 100%);
+      opacity: 0;
+      animation: fillScreen 2s ease-out 5s forwards;
+    }
+
+    @keyframes showStove {
+      0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+      100% { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+
+    @keyframes bowlSlideIn {
+      0% { left: -200px; }
+      100% { left: 50%; transform: translateX(-50%); }
+    }
+
+    @keyframes panShake {
+      0%, 100% { transform: translateX(-50%) rotate(0deg); }
+      25% { transform: translateX(-50%) rotate(-2deg) translateY(-2px); }
+      75% { transform: translateX(-50%) rotate(2deg) translateY(-2px); }
+    }
+
+    @keyframes igniteFlames {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    @keyframes flicker {
+      0% { 
+        height: 20px; 
+        transform: scaleX(1) rotate(-2deg);
+        background: linear-gradient(to top, #ff4500 0%, #ff6500 50%, #ffaa00 100%);
+      }
+      100% { 
+        height: 30px; 
+        transform: scaleX(1.2) rotate(2deg);
+        background: linear-gradient(to top, #ff6500 0%, #ffaa00 50%, #ffff00 100%);
+      }
+    }
+
+    @keyframes dropIngredient {
+      0% { 
+        opacity: 0; 
+        transform: translateX(-50%) translateY(-100px) rotate(0deg); 
+      }
+      70% { 
+        opacity: 1; 
+        transform: translateX(-50%) translateY(40px) rotate(180deg); 
+      }
+      100% { 
+        opacity: 0; 
+        transform: translateX(-50%) translateY(50px) rotate(360deg); 
+      }
+    }
+
+    @keyframes cookSoup {
+      0% { opacity: 0; height: 0; }
+      100% { opacity: 1; height: 25px; }
+    }
+
+    @keyframes steamRise {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    @keyframes floatUp {
+      0% { 
+        transform: translateY(0) scale(1) rotate(0deg); 
+        opacity: 0.8; 
+      }
+      50% { 
+        transform: translateY(-80px) scale(1.5) rotate(10deg); 
+        opacity: 0.6; 
+      }
+      100% { 
+        transform: translateY(-150px) scale(2) rotate(-5deg); 
+        opacity: 0; 
+      }
+    }
+
+    @keyframes fillScreen {
+      0% { opacity: 0; transform: scale(0.1); }
+      100% { opacity: 1; transform: scale(10); }
+    }
+
+    /* Main Page Styles */
+    .main-page {
+      display: none;
+      background: linear-gradient(135deg, #f5f5f5 0%, #e8f5e8 100%);
+      min-height: 100vh;
+      animation: fadeIn 1s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    /* Sign In Page Styles */
+    .signin-page {
+      display: none;
+      background: linear-gradient(135deg, #f5f5f5 0%, #e8f5e8 100%);
+      min-height: 100vh;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 1s ease-in;
+    }
+
+    .signin-container {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+    }
+
+    .signin-title {
+      color: #00a86b;
+      font-size: 2.5rem;
+      font-weight: 900;
+      margin-bottom: 30px;
+      letter-spacing: 2px;
+    }
+
+    .signin-form input {
+      width: 100%;
+      padding: 15px;
+      margin: 10px 0;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 1rem;
+      box-sizing: border-box;
+      transition: border-color 0.3s ease;
+    }
+
+    .signin-form input:focus {
+      outline: none;
+      border-color: #00a86b;
+    }
+
+    .signin-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #00a86b 0%, #00c878 100%);
+      color: white;
+      border: none;
+      padding: 15px;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin: 20px 0;
+      transition: all 0.3s ease;
+    }
+
+    .signin-btn:hover {
+      background: linear-gradient(135deg, #007a54 0%, #00a86b 100%);
+      transform: translateY(-2px);
+    }
+
+    .signup-link {
+      color: #666;
+      margin-top: 20px;
+    }
+
+    .signup-link a {
+      color: #00a86b;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    /* Recipe Search Page Styles */
+    .recipe-page {
+      display: none;
+      background: linear-gradient(135deg, #e8f5e8 0%, #d4f0d4 100%);
+      min-height: 100vh;
+      animation: fadeIn 1s ease-in;
+      position: relative;
+    }
+
+    .recipe-page .floating-ingredients {
+      z-index: 0;
+    }
+
+    /* Recipe Page Background Circles */
+    .recipe-background-circles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: -2;
+      overflow: hidden;
+    }
+
+    .recipe-bg-circle {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.4;
+      animation: floatCircle 25s infinite ease-in-out;
+    }
+
+    .recipe-bg-circle:nth-child(1) {
+      width: 350px;
+      height: 350px;
+      background: #FFFFE0;
+      top: 5%;
+      left: 5%;
+      animation-delay: 0s;
+    }
+
+    .recipe-bg-circle:nth-child(2) {
+      width: 280px;
+      height: 280px;
+      background: #90EE90;
+      top: 15%;
+      right: 10%;
+      animation-delay: -6s;
+    }
+
+    .recipe-bg-circle:nth-child(3) {
+      width: 320px;
+      height: 320px;
+      background: #FFB347;
+      bottom: 15%;
+      left: 15%;
+      animation-delay: -12s;
+    }
+
+    .recipe-bg-circle:nth-child(4) {
+      width: 240px;
+      height: 240px;
+      background: #FFB6C1;
+      bottom: 25%;
+      right: 20%;
+      animation-delay: -18s;
+    }
+
+    .recipe-bg-circle:nth-child(5) {
+      width: 300px;
+      height: 300px;
+      background: #FFFFE0;
+      top: 45%;
+      left: 45%;
+      animation-delay: -9s;
+    }
+
+    .recipe-bg-circle:nth-child(6) {
+      width: 200px;
+      height: 200px;
+      background: #90EE90;
+      top: 60%;
+      right: 5%;
+      animation-delay: -15s;
+    }
+
+    .recipe-bg-circle:nth-child(7) {
+      width: 260px;
+      height: 260px;
+      background: #FFB347;
+      bottom: 5%;
+      left: 60%;
+      animation-delay: -21s;
+    }
+
+    .recipe-header {
+      position: relative;
+      padding: 20px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: transparent;
+    }
+
+    .toggle-menu {
+      position: absolute;
+      top: 20px;
+      left: 30px;
+      z-index: 1000;
+    }
+
+    .menu-btn {
+      background: none;
+      border: none;
+      color: #2d5a3d;
+      font-size: 1.8rem;
+      cursor: pointer;
+      padding: 10px;
+      font-weight: 900;
+    }
+
+
+
+    .dropdown {
+      position: fixed;
+      top: 0;
+      left: -300px;
+      width: 280px;
+      height: 100vh;
+      background: linear-gradient(135deg, #ffffff 0%, #f8fff8 100%);
+      box-shadow: 2px 0 15px rgba(0,0,0,0.3);
+      z-index: 1000;
+      transition: left 0.3s ease-in-out;
+      padding: 80px 0 20px 0;
+    }
+
+    .dropdown.open {
+      left: 0;
+    }
+
+    .dropdown a {
+      display: block;
+      padding: 20px 30px;
+      color: #333;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      font-size: 1.1rem;
+      font-weight: 500;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .dropdown a:hover {
+      background: rgba(0, 168, 107, 0.1);
+      color: #00a86b;
+      padding-left: 40px;
+    }
+
+    .menu-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .menu-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .recipe-container {
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 0 20px;
+      text-align: center;
+      position: relative;
+      z-index: 10;
+    }
+
+    .recipe-main-title {
+      color: #00a86b;
+      font-size: 3rem;
+      font-weight: 900;
+      margin-bottom: 30px;
+      letter-spacing: 2px;
+    }
+
+    .search-container {
+      margin: 40px 0;
+    }
+
+    .search-box {
+      width: 100%;
+      max-width: 600px;
+      padding: 20px;
+      border: 2px solid #e0e0e0;
+      border-radius: 15px;
+      font-size: 1.1rem;
+      box-sizing: border-box;
+      margin-bottom: 20px;
+      transition: border-color 0.3s ease;
+    }
+
+    .search-box:focus {
+      outline: none;
+      border-color: #00a86b;
+    }
+
+    .find-recipe-btn {
+      background: linear-gradient(135deg, #00a86b 0%, #00c878 100%);
+      color: white;
+      border: none;
+      padding: 15px 40px;
+      border-radius: 25px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .find-recipe-btn:hover {
+      background: linear-gradient(135deg, #007a54 0%, #00a86b 100%);
+      transform: translateY(-2px);
+    }
+
+    .recipe-result {
+      margin-top: 40px;
+      padding: 30px;
+      background: #f9f9f9;
+      border-radius: 15px;
+      text-align: left;
+      display: none;
+    }
+
+    .loading {
+      display: none;
+      margin: 20px 0;
+      color: #00a86b;
+      font-size: 1.1rem;
+    }
+
+    /* Navbar styles from original */
+    header {
+      background: linear-gradient(135deg, #00a86b 0%, #00c878 100%);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px 30px;
+      color: #fff;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    header .logo {
+      display: flex;
+      align-items: center;
+      font-weight: bold;
+      font-size: 1.5rem;
+    }
+
+    header .logo-icon {
+      margin-right: 10px;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    nav a {
+      color: #fff;
+      margin-left: 20px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    nav a:hover {
+      text-shadow: 0 0 10px rgba(255,255,255,0.8);
+      transform: translateY(-2px);
+    }
+
+    /* Floating Ingredients Animation - Continuous */
+    .floating-ingredients {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .ingredient {
+      position: absolute;
+      font-size: 2.5rem;
+      opacity: 0.4;
+      animation: floatContinuous 20s infinite linear;
+      filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.2));
+      will-change: transform;
+    }
+
+    .ingredient:nth-child(1) { left: 5%; animation-delay: 0s; }
+    .ingredient:nth-child(2) { left: 15%; animation-delay: -2s; }
+    .ingredient:nth-child(3) { left: 25%; animation-delay: -4s; }
+    .ingredient:nth-child(4) { left: 35%; animation-delay: -6s; }
+    .ingredient:nth-child(5) { left: 45%; animation-delay: -8s; }
+    .ingredient:nth-child(6) { left: 55%; animation-delay: -10s; }
+    .ingredient:nth-child(7) { left: 65%; animation-delay: -12s; }
+    .ingredient:nth-child(8) { left: 75%; animation-delay: -14s; }
+    .ingredient:nth-child(9) { left: 85%; animation-delay: -16s; }
+    .ingredient:nth-child(10) { left: 95%; animation-delay: -18s; }
+    .ingredient:nth-child(11) { left: 10%; animation-delay: -1s; }
+    .ingredient:nth-child(12) { left: 20%; animation-delay: -3s; }
+    .ingredient:nth-child(13) { left: 30%; animation-delay: -5s; }
+    .ingredient:nth-child(14) { left: 40%; animation-delay: -7s; }
+    .ingredient:nth-child(15) { left: 50%; animation-delay: -9s; }
+    .ingredient:nth-child(16) { left: 60%; animation-delay: -11s; }
+
+    @keyframes floatContinuous {
+      0% {
+        transform: translateY(110vh) translateX(0) rotate(0deg);
+        opacity: 0.4;
+      }
+      25% {
+        transform: translateY(75vh) translateX(-20px) rotate(90deg);
+        opacity: 0.4;
+      }
+      50% {
+        transform: translateY(50vh) translateX(20px) rotate(180deg);
+        opacity: 0.4;
+      }
+      75% {
+        transform: translateY(25vh) translateX(-10px) rotate(270deg);
+        opacity: 0.4;
+      }
+      100% {
+        transform: translateY(-10vh) translateX(0) rotate(360deg);
+        opacity: 0.4;
+      }
+    }
+
+    /* Main Content */
+    .container {
+      text-align: center;
+      padding: 60px 20px;
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .title {
+      font-size: 3.5rem;
+      color: #00a86b;
+      margin: 30px 0;
+      text-shadow: 2px 2px 8px rgba(0,0,0,0.15);
+      font-weight: 900;
+      letter-spacing: 3px;
+      animation: titlePulse 4s ease-in-out infinite;
+    }
+
+    @keyframes titlePulse {
+      0%, 100% {
+        transform: scale(1);
+        text-shadow: 2px 2px 8px rgba(0,0,0,0.15), 0 0 15px rgba(0, 168, 107, 0.4);
+      }
+      50% {
+        transform: scale(1.02);
+        text-shadow: 2px 2px 8px rgba(0,0,0,0.15), 0 0 30px rgba(0, 168, 107, 0.7);
+      }
+    }
+
+    .tagline {
+      max-width: 800px;
+      margin: 0 auto 40px;
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid #cce5cc;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      font-size: 1.1rem;
+      backdrop-filter: blur(10px);
+      animation: slideInDown 1s ease-out;
+    }
+
+    @keyframes slideInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.98);
+      border-radius: 25px;
+      padding: 50px 30px;
+      max-width: 550px;
+      margin: 0 auto;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+      backdrop-filter: blur(15px);
+      animation: cardSlideIn 1s ease-out;
+      border: 2px solid rgba(0, 168, 107, 0.2);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 45px rgba(0,0,0,0.18);
+    }
+
+    @keyframes cardSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .card-icon {
+      font-size: 3.5rem;
+      margin-bottom: 25px;
+      color: #00a86b;
+      animation: iconFloat 3s ease-in-out infinite;
+    }
+
+    @keyframes iconFloat {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-8px);
+      }
+    }
+
+    .card h2 {
+      margin: 0 0 10px;
+      color: #333;
+    }
+
+    .card p {
+      color: #555;
+      margin-bottom: 20px;
+    }
+
+    .card button {
+      background: linear-gradient(135deg, #00a86b 0%, #00c878 100%);
+      color: #fff;
+      border: none;
+      padding: 15px 35px;
+      font-size: 1.1rem;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 168, 107, 0.3);
+      font-weight: 600;
+    }
+
+    .card button:hover {
+      background: linear-gradient(135deg, #007a54 0%, #00a86b 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 168, 107, 0.4);
+    }
+
+    .card button:active {
+      transform: translateY(0);
+    }
+
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      backdrop-filter: blur(5px);
+    }
+
+    .modal-content {
+      background: linear-gradient(135deg, #fff 0%, #f8fff8 100%);
+      margin: 10% auto;
+      padding: 30px;
+      border-radius: 20px;
+      width: 80%;
+      max-width: 500px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+      animation: modalSlideIn 0.3s ease-out;
+      border: 2px solid #00a86b;
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+
+    .close:hover {
+      color: #00a86b;
+    }
+
+    .modal h2 {
+      color: #00a86b;
+      margin-bottom: 20px;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .modal p {
+      color: #333;
+      line-height: 1.6;
+      margin-bottom: 15px;
+    }
+
+    .contact-info {
+      background: rgba(0, 168, 107, 0.1);
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 15px;
+    }
+
+    .contact-info p {
+      margin: 10px 0;
+      font-weight: 500;
+    }
+
+    /* Success Popup */
+    .success-popup {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: linear-gradient(135deg, #00a86b 0%, #00c878 100%);
+      color: white;
+      padding: 15px 25px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      z-index: 10000;
+      display: none;
+      animation: slideInRight 0.5s ease-out;
+    }
+
+    @keyframes slideInRight {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    /* Main Page Background Circles */
+    .main-background-circles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: -2;
+      overflow: hidden;
+    }
+
+    .main-bg-circle {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.4;
+      animation: floatCircle 25s infinite ease-in-out;
+    }
+
+    .main-bg-circle:nth-child(1) {
+      width: 350px;
+      height: 350px;
+      background: #FFFFE0;
+      top: 5%;
+      left: 5%;
+      animation-delay: 0s;
+    }
+
+    .main-bg-circle:nth-child(2) {
+      width: 280px;
+      height: 280px;
+      background: #90EE90;
+      top: 15%;
+      right: 10%;
+      animation-delay: -6s;
+    }
+
+    .main-bg-circle:nth-child(3) {
+      width: 320px;
+      height: 320px;
+      background: #FFB347;
+      bottom: 15%;
+      left: 15%;
+      animation-delay: -12s;
+    }
+
+    .main-bg-circle:nth-child(4) {
+      width: 240px;
+      height: 240px;
+      background: #FFB6C1;
+      bottom: 25%;
+      right: 20%;
+      animation-delay: -18s;
+    }
+
+    .main-bg-circle:nth-child(5) {
+      width: 300px;
+      height: 300px;
+      background: #FFFFE0;
+      top: 45%;
+      left: 45%;
+      animation-delay: -9s;
+    }
+
+    .main-bg-circle:nth-child(6) {
+      width: 200px;
+      height: 200px;
+      background: #90EE90;
+      top: 60%;
+      right: 5%;
+      animation-delay: -15s;
+    }
+
+    .main-bg-circle:nth-child(7) {
+      width: 260px;
+      height: 260px;
+      background: #FFB347;
+      bottom: 5%;
+      left: 60%;
+      animation-delay: -21s;
+    }
+
+    @keyframes floatCircle {
+      0%, 100% {
+        transform: translateY(0px) rotate(0deg);
+      }
+      33% {
+        transform: translateY(-20px) rotate(120deg);
+      }
+      66% {
+        transform: translateY(10px) rotate(240deg);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Animation Page -->
+  <div class="animation-page" id="animationPage">
+    <div class="soup-container">
+      <div class="stove">
+        <div class="burner"></div>
+      </div>
+      <div class="cooking-bowl"></div>
+      <div class="flames">
+        <div class="flame"></div>
+        <div class="flame"></div>
+        <div class="flame"></div>
+        <div class="flame"></div>
+        <div class="flame"></div>
+        <div class="flame"></div>
+      </div>
+      <div class="ingredient ingredient-tomato">🍅</div>
+      <div class="ingredient ingredient-onion">🧅</div>
+      <div class="ingredient ingredient-carrot">🥕</div>
+      <div class="ingredient ingredient-garlic">🧄</div>
+      <div class="soup"></div>
+      <div class="steam">
+        <div class="steam-particle"></div>
+        <div class="steam-particle"></div>
+        <div class="steam-particle"></div>
+        <div class="steam-particle"></div>
+        <div class="steam-particle"></div>
+        <div class="steam-particle"></div>
+        <div class="steam-particle"></div>
+        <div class="steam-particle"></div>
+        <div class="steam-particle"></div>
+        <div class="steam-particle"></div>
+      </div>
+      <div class="screen-fill"></div>
+    </div>
+  </div>
+
+  <!-- Main Page -->
+  <div class="main-page" id="mainPage">
+    <!-- Background Circles for Main Page -->
+    <div class="main-background-circles">
+      <div class="main-bg-circle"></div>
+      <div class="main-bg-circle"></div>
+      <div class="main-bg-circle"></div>
+      <div class="main-bg-circle"></div>
+      <div class="main-bg-circle"></div>
+      <div class="main-bg-circle"></div>
+      <div class="main-bg-circle"></div>
+    </div>
+    
+    <!-- Floating Ingredients Background -->
+    <div class="floating-ingredients">
+      <div class="ingredient">🍅</div>
+      <div class="ingredient">🥕</div>
+      <div class="ingredient">🧄</div>
+      <div class="ingredient">🧅</div>
+      <div class="ingredient">🥒</div>
+      <div class="ingredient">🌶️</div>
+      <div class="ingredient">🥬</div>
+      <div class="ingredient">🍋</div>
+      <div class="ingredient">🥑</div>
+      <div class="ingredient">🍄</div>
+      <div class="ingredient">🌽</div>
+      <div class="ingredient">🥔</div>
+    </div>
+
+    <header>
+      <div class="logo">
+        <span class="logo-icon">🔍</span>
+        INTELLIRECIPE
+      </div>
+      <nav>
+        <a href="#" onclick="showContact()">Contact Us</a>
+        <a href="#" onclick="showAbout()">About</a>
+      </nav>
+    </header>
+
+    <div class="container">
+      <div class="title">INTELLIRECIPE</div>
+      <div class="tagline">
+        Hungry? Don't worry, we're here! Provide the ingredients you have, we'll guide you how to make the recipe and empty your plate.
+      </div>
+
+      <div class="card">
+        <div class="card-icon">🔍</div>
+        <h2>Ready to Cook?</h2>
+        <p>Click below to start your culinary journey!</p>
+        <button onclick="showSignIn()">Start IntelliRecipe</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sign In Page -->
+  <div class="signin-page" id="signinPage">
+    <div class="signin-container">
+      <div class="signin-title">INTELLIRECIPE</div>
+      <div class="signin-form" id="signinForm">
+        <input type="text" placeholder="Username" id="username" required>
+        <input type="password" placeholder="Password" id="password" required>
+        <button class="signin-btn" onclick="signIn()">Sign In</button>
+      </div>
+      <div class="signup-form" id="signupForm" style="display: none;">
+        <input type="text" placeholder="Phone Number" id="phone" required>
+        <input type="email" placeholder="Email" id="signupEmail" required>
+        <input type="text" placeholder="Create Username" id="username" required>
+        <input type="password" placeholder="Create Password" id="signupPassword" required>
+        <button class="signin-btn" onclick="createAccount()">Create Account</button>
+      </div>
+      <div class="signup-link">
+        <span id="toggleText">New to IntelliRecipe? <a href="#" onclick="showSignUp()">Create an account</a></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recipe Search Page -->
+  <div class="recipe-page" id="recipePage">
+    <!-- Floating Ingredients Background for Recipe Page -->
+    <div class="floating-ingredients">
+      <div class="ingredient">🍅</div>
+      <div class="ingredient">🥕</div>
+      <div class="ingredient">🧄</div>
+      <div class="ingredient">🧅</div>
+      <div class="ingredient">🥒</div>
+      <div class="ingredient">🌶️</div>
+      <div class="ingredient">🥬</div>
+      <div class="ingredient">🍋</div>
+      <div class="ingredient">🥑</div>
+      <div class="ingredient">🍄</div>
+      <div class="ingredient">🌽</div>
+      <div class="ingredient">🥔</div>
+      <div class="ingredient">🍆</div>
+      <div class="ingredient">🥦</div>
+      <div class="ingredient">🫒</div>
+      <div class="ingredient">🌿</div>
+    </div>
+
+    <div class="menu-overlay" id="menuOverlay" onclick="closeMenu()"></div>
+    
+    <div class="recipe-header">
+      <div class="toggle-menu">
+        <button class="menu-btn" onclick="toggleMenu()">☰</button>
+        <div class="dropdown" id="dropdown">
+          <a href="#" onclick="signOut()">Sign Out</a>
+          <a href="#" onclick="showAboutFromRecipe()">About Us</a>
+          <a href="#" onclick="showContactFromRecipe()">Contact Us</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="recipe-container">
+      <div class="recipe-main-title">INTELLIRECIPE</div>
+      
+      <div class="search-container">
+        <input type="text" class="search-box" id="ingredientsInput" placeholder="Enter your ingredients (e.g., tomatoes, onions, garlic)">
+        <br>
+        <button class="find-recipe-btn" onclick="findRecipe()">Find Recipe</button>
+      </div>
+
+      <div class="loading" id="loading">🍳 Cooking up your recipe...</div>
+      
+      <div class="recipe-result" id="recipeResult">
+        <h3>Your Recipe:</h3>
+        <div id="recipeContent"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- About Modal -->
+  <div id="aboutModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('aboutModal')">&times;</span>
+      <h2>About IntelliRecipe</h2>
+      <p>INTELLIRECIPE provides millions of users to cook via generating recipes using AI.</p>
+      <p><strong>Abhinav Rishi</strong> - Founder of wasteless food</p>
+    </div>
+  </div>
+
+  <!-- Contact Modal -->
+  <div id="contactModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('contactModal')">&times;</span>
+      <h2>Contact Us</h2>
+      <div class="contact-info">
+        <p><strong>Email:</strong> abhinavrishisaka@gmail.com</p>
+        <p><strong>Contact No:</strong> 9618587055</p>
+        <p><strong>Founder:</strong> Abhinav Rishi</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success Popup -->
+  <div class="success-popup" id="successPopup">
+    ✅ Successfully logged in!
+  </div>
+
+  <script>
+    // Start with animation
+    setTimeout(() => {
+      document.getElementById('animationPage').style.display = 'none';
+      document.getElementById('mainPage').style.display = 'block';
+    }, 8000);
+
+    function showSignIn() {
+      document.getElementById('mainPage').style.display = 'none';
+      document.getElementById('signinPage').style.display = 'flex';
+    }
+
+    function signIn() {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      
+      if (username && password) {
+        showSuccessPopup();
+        setTimeout(() => {
+          document.getElementById('signinPage').style.display = 'none';
+          document.getElementById('recipePage').style.display = 'block';
+        }, 1500);
+      } else {
+        alert('Please enter both username and password');
+      }
+    }
+
+    function showSignUp() {
+      document.getElementById('signinForm').style.display = 'none';
+      document.getElementById('signupForm').style.display = 'block';
+      document.getElementById('toggleText').innerHTML = 'Already have an account? <a href="#" onclick="showSignInForm()">Sign In</a>';
+    }
+
+    function showSignInForm() {
+      document.getElementById('signupForm').style.display = 'none';
+      document.getElementById('signinForm').style.display = 'block';
+      document.getElementById('toggleText').innerHTML = 'New to IntelliRecipe? <a href="#" onclick="showSignUp()">Create an account</a>';
+    }
+
+    function showSignIn() {
+      document.getElementById('mainPage').style.display = 'none';
+      document.getElementById('signinPage').style.display = 'flex';
+    }
+
+    function createAccount() {
+      const phone = document.getElementById('phone').value;
+      const email = document.getElementById('signupEmail').value;
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('signupPassword').value;
+      
+      if (phone && email && username && password) {
+        showSuccessPopup('Account created successfully!');
+        setTimeout(() => {
+          document.getElementById('signinPage').style.display = 'none';
+          document.getElementById('recipePage').style.display = 'block';
+        }, 1500);
+      } else {
+        alert('Please fill in all fields');
+      }
+    }
+
+    function showSuccessPopup(message = '✅ Successfully logged in!') {
+      const popup = document.getElementById('successPopup');
+      popup.textContent = message;
+      popup.style.display = 'block';
+      
+      setTimeout(() => {
+        popup.style.display = 'none';
+      }, 3000);
+    }
+
+
+
+    function toggleMenu() {
+      const dropdown = document.getElementById('dropdown');
+      const overlay = document.getElementById('menuOverlay');
+      
+      dropdown.classList.toggle('open');
+      overlay.classList.toggle('active');
+    }
+
+    function closeMenu() {
+      const dropdown = document.getElementById('dropdown');
+      const overlay = document.getElementById('menuOverlay');
+      
+      dropdown.classList.remove('open');
+      overlay.classList.remove('active');
+    }
+
+    function signOut() {
+      closeMenu();
+      document.getElementById('recipePage').style.display = 'none';
+      document.getElementById('mainPage').style.display = 'block';
+    }
+
+    function showAboutFromRecipe() {
+      closeMenu();
+      document.getElementById('aboutModal').style.display = 'block';
+    }
+
+    function showContactFromRecipe() {
+      closeMenu();
+      document.getElementById('contactModal').style.display = 'block';
+    }
+
+    async function findRecipe() {
+      const ingredients = document.getElementById('ingredientsInput').value;
+      if (!ingredients.trim()) {
+        alert('Please enter some ingredients');
+        return;
+      }
+
+      const loading = document.getElementById('loading');
+      const result = document.getElementById('recipeResult');
+      const content = document.getElementById('recipeContent');
+
+      loading.style.display = 'block';
+      result.style.display = 'none';
+
+      try {
+        const response = await fetch('http://127.0.0.1:3000/api/generate-recipe', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            ingredients: ingredients.split(',').map(ing => ing.trim())
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to get recipe');
+        }
+
+        const data = await response.json();
+
+        loading.style.display = 'none';
+        if (data.status === 'success') {
+          content.innerHTML = data.recipe.replace(/\n/g, '<br>');
+        } else {
+          content.innerHTML = `<p>Error: ${data.error}</p>`;
+        }
+        result.style.display = 'block';
+
+      } catch (error) {
+        loading.style.display = 'none';
+        content.innerHTML = `<p>Error fetching recipe: ${error.message}</p>`;
+        result.style.display = 'block';
+      }
+    }
+
+    function showAbout() {
+      document.getElementById('aboutModal').style.display = 'block';
+    }
+
+    function showContact() {
+      document.getElementById('contactModal').style.display = 'block';
+    }
+
+
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).style.display = 'none';
+    }
+
+    // Close modal when clicking outside of it
+    window.onclick = function(event) {
+      const aboutModal = document.getElementById('aboutModal');
+      const contactModal = document.getElementById('contactModal');
+      if (event.target == aboutModal) {
+        aboutModal.style.display = 'none';
+      }
+      if (event.target == contactModal) {
+        contactModal.style.display = 'none';
+      }
+    }
+  </script>
+
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'963e40f4d32e470d',t:'MTc1MzMwNTk2Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

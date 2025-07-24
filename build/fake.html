@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IntelliRecipe</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Roboto', sans-serif;
+      background: #f5f5f5;
+      overflow-x: hidden;
+    }
+
+    /* Navbar */
+    header {
+      background: #00a86b;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px 30px;
+      color: #fff;
+    }
+
+    header .logo {
+      display: flex;
+      align-items: center;
+      font-weight: bold;
+      font-size: 1.5rem;
+    }
+
+    header .logo-icon {
+      margin-right: 10px;
+    }
+
+    nav a {
+      color: #fff;
+      margin-left: 20px;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    /* Main Content */
+    .container {
+      text-align: center;
+      padding: 50px 20px;
+    }
+
+    .title {
+      font-size: 3rem;
+      color: #00a86b;
+      margin: 20px 0;
+    }
+
+    .tagline {
+      max-width: 800px;
+      margin: 0 auto 40px;
+      background: #fff;
+      border: 1px solid #cce5cc;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      font-size: 1.1rem;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 40px 20px;
+      max-width: 600px;
+      margin: 0 auto;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .card-icon {
+      font-size: 3rem;
+      margin-bottom: 20px;
+      color: #5e5e5e;
+    }
+
+    .card h2 {
+      margin: 0 0 10px;
+    }
+
+    .card p {
+      color: #555;
+      margin-bottom: 20px;
+    }
+
+    .card button {
+      background: #00a86b;
+      color: #fff;
+      border: none;
+      padding: 12px 30px;
+      font-size: 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .card button:hover {
+      background: #007a54;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">
+      <span class="logo-icon">🔍</span>
+      INTELLIRECIPE
+    </div>
+    <nav>
+      <a href="#">Home</a>
+      <a href="#">Recipes</a>
+      <a href="#">About</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <div class="title">INTELLIRECIPE</div>
+    <div class="tagline">
+      Hungry? Don't worry, we're here! Provide the ingredients you have, we'll guide you how to make the recipe and empty your plate.
+    </div>
+
+    <div class="card">
+      <div class="card-icon">🔍</div>
+      <h2>Ready to Cook?</h2>
+      <p>Click below to start your culinary journey!</p>
+      <button>Start Cooking</button>
+    </div>
+  </div>
+
+</body>
+</html>
