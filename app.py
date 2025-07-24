@@ -3,59 +3,32 @@ from flask_cors import CORS
 from openai import OpenAI
 import os
 
-# Load .env if needed (Render sets env vars directly, so optional)
-from dotenv import load_dotenv
-load_dotenv()
-
-app = Flask(__name__, static_folder="frontend/build")
+app = Flask(__name__, static_folder='build', static_url_path='')
 CORS(app)
 
-# Initialize OpenAI client
-client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+client = OpenAI()
 
-def generate_recipe_prompt(ingredients):
-    return f"""
-    Create a clear, easy-to-follow recipe using only these ingredients: {', '.join(ingredients)}.
-    Include a title, an ingredients list, and step-by-step instructions.
-    """
-
-def call_openai(prompt):
-    response = client.chat.completions.create(
-        model="gpt-4o",  # Use GPT-4 if available, else gpt-3.5-turbo
-        messages=[
-            {"role": "system", "content": "You are a helpful recipe assistant."},
-            {"role": "user", "content": prompt}
-        ]
-    )
-    return response.choices[0].message.content
-
-@app.route("/api/generate-recipe", methods=["POST"])
+@app.route('/api/recipe', methods=['POST'])
 def generate_recipe():
     data = request.get_json()
-    ingredients = data.get("ingredients", [])
-    if not ingredients:
-        return jsonify({"status": "error", "error": "No ingredients provided"}), 400
+    ingredients = data.get('ingredients', '')
+    prompt = f"Give me a recipe with these ingredients: {ingredients}"
 
-    prompt = generate_recipe_prompt(ingredients)
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[{"role": "user", "content": prompt}]
+    )
 
-    try:
-        recipe = call_openai(prompt)
-    except Exception as e:
-        return jsonify({"status": "error", "error": str(e)}), 500
+    recipe = response.choices[0].message.content
+    return jsonify({'recipe': recipe})
 
-    return jsonify({
-        "status": "success",
-        "recipe": recipe
-    })
-
-# Serve React build
-@app.route("/", defaults={"path": ""})
-@app.route("/<path:path>")
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
 def serve(path):
     if path != "" and os.path.exists(os.path.join(app.static_folder, path)):
         return send_from_directory(app.static_folder, path)
     else:
-        return send_from_directory(app.static_folder, "index.html")
+        return send_from_directory(app.static_folder, 'index.html')
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     app.run(debug=True)
