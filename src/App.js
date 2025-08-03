@@ -56,7 +56,7 @@ function App() {
 
     // Call backend API
     try {
-      const response = await fetch('/api/generate-recipe', {
+      const response = await fetch('/generate_recipe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
